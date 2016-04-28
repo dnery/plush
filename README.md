@@ -14,7 +14,7 @@
   Simple Makefile.
 
 ##Things 2 do
-  **Set up loops**
+  ⋅⋅1.**Set up loops**
   **Set up output redirect**
   **Set up dynamic libs**
   **And, finally, set up assinchronous signals.**
