@@ -8,16 +8,16 @@
   We intend to develop a shell, during 2016's OS-2 course
 
 ##Things done
-  Simple parser working.
-  Module-based structure.
-  exec loop working.
-  Simple Makefile.
+  1. Simple parser working.
+  2. Module-based structure.
+  3. exec loop working.
+  4. Simple Makefile.
 
 ##Things 2 do
-  ⋅⋅1.**Set up loops**
-  **Set up output redirect**
-  **Set up dynamic libs**
-  **And, finally, set up assinchronous signals.**
+  1. **Set up loops**
+  2. **Set up output redirect**
+  3. **Set up dynamic libs**
+  4. **And, finally, set up assinchronous signals.**
 
 ##Waiting 4 instructions
   *waiting for instructions relative to assinchronous signals.*
