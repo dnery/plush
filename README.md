@@ -21,3 +21,9 @@
 
 ##Waiting 4 instructions
   *waiting for instructions relative to assinchronous signals.*
+
+
+##IMPORTANT!!!
+  _we'll post every code ASAP, we're using the following repo at first, and we'll keep that way. Just post things working and possible issues here_
+
+  https://github.com/Henrique1792/Project_Shell
