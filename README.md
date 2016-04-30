@@ -14,10 +14,10 @@
   4. Simple Makefile.
 
 ##Things 2 do
-  1. **Set up loops**
-  2. **Set up output redirect**
-  3. **Set up dynamic libs**
-  4. **And, finally, set up assinchronous signals.**
+  1. **Set up output redirect**
+  2. **Set up dynamic libs**
+  3. **Set up assinchronous signals.**
+  4. **Set up pipelines**
 
 ##Waiting 4 instructions
   *waiting for instructions relative to assinchronous signals.*
