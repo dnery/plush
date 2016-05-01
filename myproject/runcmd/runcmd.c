@@ -23,10 +23,9 @@ int runcmd (const char *command, int *result, int *io){
     close(0);
     close(1);
     close(2);
-    fd = (int *) malloc(3*sizeof(int));
-    fd[0] = open("in.txt",O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    fd[1] = open("out.txt",O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    fd[2] = open("err.txt", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    dup2(io[0],0);
+    dup2(io[1],1);
+    dup2(io[2],2);
   }
  
   pid=fork();
