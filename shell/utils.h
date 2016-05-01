@@ -1,6 +1,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#define MAX_ARGS 1024
 #define TOK_DELIM " \t\n"
 
 #include <unistd.h>

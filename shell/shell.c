@@ -34,7 +34,7 @@ void shell_loop(){
       
       }
     }
-    
+    //need 2 add a free loop here for tgt
     free(line);
   }
   printf("See ya\n");
