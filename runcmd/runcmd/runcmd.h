@@ -22,6 +22,21 @@
 #ifndef RUNCMD_H
 #define RUNCMD_H
 
+
+/*Required Libs.*/
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <signal.h>
+#include <string.h>
+
+
+#define CHKNULL(value) value == NULL ? 1: 0
+
+
 /* Definitions for the command line parser. */
 
 #define RCMD_MAXARGS   1024	/* Max number of arguments. */
