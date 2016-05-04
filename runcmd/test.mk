@@ -1,10 +1,10 @@
+# Customize according to your project's needs
 
-# How to prepare to run the tests
+# How to prepare to run the tests, e.g.
 
 tests_setup:
-	@rm -f nosuchfile *.log
-
-# What to do after tests (eg clean temp files)
+#	@rm -f touch.log
 
 tests_cleanup:
-	@rm -f t1.log
+#	@rm -f tests.log
+
