@@ -3,7 +3,7 @@ Copyright (c) 2014, <Henrique Freitas> - <freitash1792@gmail.com>
 
 This file is part of <Henrique Freitas>
 
-<Project Name> is free software: you can redistribute it and/or modify
+RunCmd is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
@@ -44,19 +44,18 @@ int runcmd (const char *command, int *result, int *io){
 
  
  
-  /* Redirection check.
-   * if(!(CHKNULL(io))){*/
-    /*bkp=(int *)malloc(3*sizeof(int));*/
-    /*dup2(0,bkp[0]);*/
-    /*dup2(1,bkp[1]);*/
-    /*dup2(2, bkp[2]);*/
-    /*close(0);*/
-    /*close(1);*/
-    /*close(2);*/
-    /*dup2(io[0],0);*/
-    /*dup2(io[1],1);*/
-    /*dup2(io[2],2);*/
-  /*}*/
+    if(!(CHKNULL(io))){
+   bkp=(int *)malloc(3*sizeof(int));
+   dup2(0,bkp[0]);
+   dup2(1,bkp[1]);
+   dup2(2, bkp[2]);
+   close(0);
+   close(1);
+   close(2);
+   dup2(io[0],0);
+   dup2(io[1],1);
+   dup2(io[2],2);
+  /}
   
   sysfail(pipe(exec_ok)<0,-1);
 
