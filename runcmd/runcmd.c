@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 
 
 int runcmd (const char *command, int *result, int *io){
-  int pid=-1, status=0, kid,i=0,tmp_result=0; /*bkp=NULL;*/
+  int pid=-1, status=0, kid,i=0,tmp_result=0, *bkp=NULL;
   char *args[RCMD_MAXARGS], *aux, *cmd;
   int exec_ok[2] ;
   cmd=(char *)malloc(strlen(command+1)*sizeof(char));
@@ -44,7 +44,7 @@ int runcmd (const char *command, int *result, int *io){
 
  
  
-    if(!(CHKNULL(io))){
+  if(!(CHKNULL(io))){
    bkp=(int *)malloc(3*sizeof(int));
    dup2(0,bkp[0]);
    dup2(1,bkp[1]);
@@ -55,7 +55,7 @@ int runcmd (const char *command, int *result, int *io){
    dup2(io[0],0);
    dup2(io[1],1);
    dup2(io[2],2);
-  /}
+  }
   
   sysfail(pipe(exec_ok)<0,-1);
 
