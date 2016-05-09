@@ -73,14 +73,14 @@ int runcmd (const char *command, int *result, int *io){
     close(exec_ok[1]);
     kid=wait(&status);
     sysfail(kid<0,-1);
-    /*if(io){*/
-      /*close(0);*/
-      /*close(1);*/
-      /*close(2);*/
-      /*dup2(bkp[0],0);*/
-      /*dup2(bkp[1],1);*/
-      /*dup2(bkp[2],2);*/
-    /*}*/
+    if(io){
+      close(0);
+      close(1);
+      close(2);
+      dup2(bkp[0],0);
+      dup2(bkp[1],1);
+      dup2(bkp[2],2);
+    }
 
     if(WIFEXITED(status)){
       tmp_result |=NORMTERM;
