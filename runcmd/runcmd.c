@@ -43,9 +43,9 @@ int runcmd (const char *command, int *result, int *io){
  
   if(!(CHKNULL(io))){
    bkp=(int *)malloc(3*sizeof(int));
-   dup2(0,bkp[0]);
-   dup2(1,bkp[1]);
-   dup2(2, bkp[2]);
+   memcpy(&bkp[0],stdin,sizeof(int));
+   memcpy(&bkp[1],stdout,sizeof(int));
+   memcpy(&bkp[2],stderr,sizeof(int));
    close(0);
    close(1);
    close(2);
