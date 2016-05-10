@@ -80,8 +80,8 @@ int runcmd (const char *command, int *result, int *io){
     }
 
     if(WIFEXITED(status)){
-      tmp_result |=NORMTERM;
-      tmp_result |=(WEXITSTATUS(status)&RETSTATUS);
+      tmp_result |= NORMTERM;
+      tmp_result |= (WEXITSTATUS(status)&RETSTATUS);
       
       if(read(exec_ok[0],NULL,1)==0) 
         tmp_result |=EXECOK;
