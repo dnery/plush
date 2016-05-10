@@ -27,9 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <debug.h>
 
 
-
-
-
 int runcmd (const char *command, int *result, int *io){
   int pid=-1, status=0, kid,i=0,tmp_result=0, *bkp=NULL;
   char *args[RCMD_MAXARGS], *aux, *cmd;
