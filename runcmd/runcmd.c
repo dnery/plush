@@ -95,7 +95,7 @@ int runcmd (const char *command, int *result, int *io){
     exit (EXECFAILSTATUS);
   }
 
-   *result = tmp_result;
+  *result = tmp_result;
   free(aux);
   return pid;
 }
