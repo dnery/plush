@@ -7,7 +7,7 @@
 void shell_loop(){
   char *line=NULL;
   char **tgt=NULL;
-  int exe_members, pid,status, execution,i; 
+  int exe_members=0, pid,status, execution,i; 
   
   while(1){
     printf(">> ");
@@ -29,12 +29,10 @@ void shell_loop(){
           execvp(tgt[0],tgt);
           exit(EXIT_FAILURE);
         }
-
-      }   
-      
+      }
+      exe_members=0;
+      free(line);
     }
-    free(line);
-    /*set_free(&tgt, exe_members);*/
   }
   printf("See ya\n");
 }

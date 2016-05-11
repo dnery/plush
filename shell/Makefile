@@ -8,7 +8,7 @@ OBJS = utils.o parser.o shell.o main.o
 all: $(OBJS)
 	$(CC) $(CPP_FLAGS) $^ -o shue
 
-run:
+test:
 	./shue
 
 .PHONY: clean
