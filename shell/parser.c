@@ -10,7 +10,7 @@ char **Args(char *command, int *nargs){
 
   rt[i++]=strtok(command,TOK_DELIM );
   while((i<MAX_ARGS) && (rt[i++]=strtok(NULL,TOK_DELIM)));
- *nargs=(i-1); 
+  *nargs=(i-1); 
   
   return rt;  
 }

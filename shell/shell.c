@@ -6,8 +6,8 @@
 
 void shell_loop(){
   char *line=NULL;
-  char **tgt;
-  int exe_members, pid,status, execution; 
+  char **tgt=NULL;
+  int exe_members, pid,status, execution,i; 
   
   while(1){
     printf(">> ");
@@ -15,7 +15,6 @@ void shell_loop(){
     
     if(EmptyCmd(line)){
       tgt=Args(line,&exe_members);
-      
       if(NullCmd(tgt[0])){
         
         KillCmd(tgt[0])
@@ -30,12 +29,12 @@ void shell_loop(){
           execvp(tgt[0],tgt);
           exit(EXIT_FAILURE);
         }
+
+      }   
       
-      
-      }
     }
-    //need 2 add a free loop here for tgt
     free(line);
+    /*set_free(&tgt, exe_members);*/
   }
   printf("See ya\n");
 }

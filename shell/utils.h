@@ -28,6 +28,6 @@
 
 
 char *get_line();
-
+//void set_free(char ***tgt,int args);
 
 #endif
