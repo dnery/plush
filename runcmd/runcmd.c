@@ -30,7 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 int runcmd (const char *command, int *result, int *io){
   int pid=-1, status=0, kid,i=0,tmp_result=0, *bkp=NULL;
   char *args[RCMD_MAXARGS], *aux, *cmd;
-  int exec_ok[2] ;
+  int exec_ok[2];
+
+
   cmd=(char *)malloc(strlen(command+1)*sizeof(char));
   sysfail(!cmd, -1);
   aux=strcpy(cmd,command);
@@ -55,19 +57,17 @@ int runcmd (const char *command, int *result, int *io){
   }
   
   sysfail(pipe(exec_ok)<0,-1);
-
   pid=fork();
   sysfail(pid<0, -1);
   
   
   
-  /*non-blocking code
-  if(*args[i]==RCMD_NONBLOCK){
-  
-  }
-  */
   if(pid>0){ /*parent proccess*/
     close(exec_ok[1]);
+    if(*args[i]==RCMD_NONBLOCK){ 
+      return 0;
+    }
+    
     kid=wait(&status);
     sysfail(kid<0,-1);
     if(io){
@@ -88,6 +88,10 @@ int runcmd (const char *command, int *result, int *io){
     }
   }
   else{ /*child proccess*/
+    if(*args[i]==RCMD_NONBLOCK){
+      kid=execvp(args[0],args);
+      raise(SIGKILL);
+    }
     kid=execvp(args[0],args);
     write(exec_ok[1],"False!",1);
     close(exec_ok[1]);
