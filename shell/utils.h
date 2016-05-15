@@ -11,8 +11,8 @@
 #include <stdio.h>
 
 
-#define NullCmd(exp)  exp!=NULL ? 1 : 0
-#define EmptyCmd(exp) strcmp(exp,"\0")!=0 ? 1 : 0
+#define NotNullCmd(exp)  exp!=NULL ? 1 : 0
+#define NotEmptyCmd(exp) strcmp(exp,"\0")!=0 ? 1 : 0
 #define KillCmd(exp) if(!strcmp(exp,"exit")) break;
 
 #define FATAL_ERROR(exp) do{if(exp){\
