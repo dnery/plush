@@ -1,7 +1,7 @@
 /* runcmd.c - Library developed during OS2 course. 
 Copyright (c) 2014, <Henrique Freitas> - <freitash1792@gmail.com>
 
-This file is part of <Henrique Freitas>
+This file is part of <RunCmd>
 
 RunCmd is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
