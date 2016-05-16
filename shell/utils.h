@@ -9,7 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define NotNullCmd(exp)  exp!=NULL ? 1 : 0
 #define NotEmptyCmd(exp) strcmp(exp,"\0")!=0 ? 1 : 0

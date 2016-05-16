@@ -1,5 +1,5 @@
 CC = gcc
-CPP_FLAGS = -I. -Wall -std=c89 -ansi -pedantic
+CPP_FLAGS = -I.-g -Wall -std=c89 -ansi -pedantic
 OBJS = utils.o parser.o shell.o main.o
 
 %.o: %.c

@@ -13,7 +13,7 @@ char **Args(char *command, int *nargs){
   /**nargs=(i-1); */
   char **rt=NULL;
   char *tmp=NULL;
-  int i=0,flag=0;
+  int i=0;
 
   tmp=strtok(command,TOK_DELIM);
   rt=(char **)realloc(rt,(i+1)*sizeof(char *));
