@@ -1,6 +1,8 @@
 #include "shell.h"
 #include "parser.h"
 
+#include <sys/types.h>
+#include <sys/wait.h>
 
 void shell_loop(){
   char *line=NULL;
@@ -33,6 +35,7 @@ void shell_loop(){
       }
       set_free(&tgt,exe_members);
       exe_members=0;
+       
     }
   }
   printf("See ya\n");
