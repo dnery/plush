@@ -5,7 +5,7 @@
 void shell_loop(){
   char *line=NULL;
   char **tgt=NULL;
-  int exe_members=0, pid,status, execution,i; 
+  int exe_members=0, pid,status,pos,i, *positions,fd_out; 
   
   while(1){
     printf(">> ");
@@ -13,6 +13,7 @@ void shell_loop(){
     
     if(NotEmptyCmd(line)){
       tgt=Args(line,&exe_members);
+      
       if(NotNullCmd(tgt[0])){
         
         if(!strcmp(tgt[0],"exit")){

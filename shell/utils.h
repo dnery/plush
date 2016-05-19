@@ -11,10 +11,16 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define NotNullCmd(exp)  exp!=NULL ? 1 : 0
 #define NotEmptyCmd(exp) strcmp(exp,"\0")!=0 ? 1 : 0
 #define KillCmd(exp) if(!strcmp(exp,"exit")) break;
+
+#define NOT_FOUND 404
+#define ERROR 127
 
 #define FATAL_ERROR(exp) do{if(exp){\
   fprintf(stderr," ERROR: %s : %d : %s \n",__FILE__, __LINE__,strerror(errno));\
@@ -29,5 +35,5 @@
 
 char *get_line();
 void set_free(char ***tgt,int args);
-
+int *Get_char_position(char **Args, int Nargs);
 #endif
