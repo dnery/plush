@@ -1,8 +1,6 @@
 #include "shell.h"
 #include "parser.h"
 
-#include <sys/types.h>
-#include <sys/wait.h>
 
 void shell_loop(){
   char *line=NULL;
