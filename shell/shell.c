@@ -7,18 +7,21 @@
 void shell_loop(){
   char *line=NULL;
   char **tgt=NULL;
-  int exe_members, pid,status, execution,i; 
+  int exe_members=0, pid,status, execution,i; 
   
   while(1){
     printf(">> ");
     line=get_line();
     
-    if(EmptyCmd(line)){
+    if(NotEmptyCmd(line)){
       tgt=Args(line,&exe_members);
-      if(NullCmd(tgt[0])){
+      if(NotNullCmd(tgt[0])){
         
-        KillCmd(tgt[0])
-        
+        if(!strcmp(tgt[0],"exit")){
+          free(tgt);
+          free(line);
+          break;
+        }
         pid=fork();
         FATAL_ERROR(pid<0);
       
@@ -29,14 +32,14 @@ void shell_loop(){
           execvp(tgt[0],tgt);
           exit(EXIT_FAILURE);
         }
-
-      }   
-      
+      }
+      set_free(&tgt,exe_members);
+      exe_members=0;
+       
     }
-    free(line);
-    /*set_free(&tgt, exe_members);*/
   }
   printf("See ya\n");
+  
 }
 
 void shell_init(){

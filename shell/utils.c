@@ -13,11 +13,10 @@ char *get_line(){
   return rt;
 }
 
-void set_free(char ***tgt, int args){
-  int i;
-  if(tgt==NULL || *tgt == NULL || args == 0) return;
-  
-  for(i=args-1;i>=0;i--) free(*tgt[i]);
+
+void set_free(char ***tgt,int args){
+  int i=0;
+  if(*tgt==NULL) return;
+  for(i=0;i<args;i++) free(*(tgt[i]));
   free(*tgt);
-  tgt=NULL;
 }
