@@ -35,5 +35,7 @@
 
 char *get_line();
 void set_free(char ***tgt,int args);
-int *Get_char_position(char **Args, int Nargs);
+int Get_char_position(char **Args, int Nargs, char tgt);
+char **mv_redir(char ***Args, int size);
+
 #endif

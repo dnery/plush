@@ -20,21 +20,31 @@ void set_free(char ***tgt,int args){
   free(*tgt);
 }
 
-int *Get_char_position(char **Args, int Nargs){
-  int i, *value=NULL,j=0;
-  if(Args==NULL || *Args == NULL || Nargs<=0) return NULL;
+int Get_char_position(char **Args, int Nargs, char tgt){
+  int i;
+  if(Args==NULL || *Args == NULL || Nargs<=0) return ERROR;
   
   for(i=0;i<Nargs;i++){
-    if(*Args[i]=='|' || *Args[i]=='>'){
-     value=(int *)realloc(value,(j+1)*sizeof(int));
-     value[j++]=i;
+    if(*Args[i]==tgt){
+      return i;
     }
   }
-  if(value==NULL){
-    value=(int *)malloc(2*sizeof(int));
-    value[0]=NOT_FOUND;
-    value[1]='\0';
+
+  if(*Args[i]==tgt)   return i;
+  else  return NOT_FOUND;
+}
+
+
+char **mv_redir(char ***Args, int size){
+  char **rt=NULL;  
+  int i;
+  if(*Args==NULL||**Args==NULL||size<=0) return NULL;
+  
+  rt=(char**)malloc((size-2)*sizeof(char*));
+
+  for(i=0;i<(size-2);i++){
+    rt[i]=(char *)malloc((sizeof(**Args[i]))*sizeof(char));
+    memcpy(rt[i],*Args[i],sizeof(**Args[i]));
   }
-  else  value[j]='\0';
-  return value;
+  return rt;
 }
