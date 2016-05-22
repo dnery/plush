@@ -48,7 +48,6 @@ include config.mk
 lib_static = $(lib:%=%.a)              # For building
 lib_shared = $(lib:%=%.so)             # For building
 
-# Used for installation
 lib_all = $(lib_static) $(lib_shared)  # For installing
 
 inst_headers = $(foreach i, $(lib:%=%_h), $($i))  # For installing
@@ -59,10 +58,14 @@ proj_src += $(foreach i, $(noinst_bin:%=%_obj), $($i:%.o=%.c))
 
 proj_dep = $(proj_src:%.c=%.d)  # For building
 
-proj_headers += $(filter %.h, $(shell $(CC) $(CPP_FLAGS) $(CPPFLAGS) -I. -MM -MG -MT " " $(proj_src)) )
+ifneq (,$(strip $(proj_src)))   # For distribution (oly of if project has C sources)
+proj_headers += $(filter %.h, $(shell $(CC) $(CPP_FLAGS) $(CPPFLAGS) -I. -MM -MG -MT "" $(proj_src)) )
+endif
 proj_headers += $(inst_headers) # For distribution
 
-EXTRA_DIST += Makefile config.mk local.mk test.mk README COPYING AUTHORS 
+RECOMMENDED = README COPYING AUTHORS INSTALL 
+
+EXTRA_DIST += Makefile config.mk local.mk test.mk $(foreach f, $(RECOMMENDED), $(wildcard $f))
 
 #
 # Rules
@@ -70,8 +73,44 @@ EXTRA_DIST += Makefile config.mk local.mk test.mk README COPYING AUTHORS
 
 # Build everything
 
+all static : safety $(gendist_files) $(lib_all) $(bin) $(noinst_bin) 
 
-all static : $(gendist_files) $(lib_all) $(bin) $(noinst_bin) 
+# Safety
+
+# Some rules suck as clean and uninstall remove files and directories whose
+# names are computed from the user-provided configuration variables. Those names
+# are consideraded critical, seen that accidental misnamings can cause 
+# irreparable harms. Prevention is better than cure, and a stich in time saves 
+# nine. Some checks may be reduntant or exagerated but better some paranoia now
+# than sorrowful regrets later on.
+
+# For safety, critical names can't have slashes nor be .  or ..
+
+CRITICALNAMES = PROJECT bin noinst_bin lib #$(proj_src) $(proj_h) 
+
+$(CRITICALNAMES:%=%_check) : %_check : 
+	@for i in $($*) ; do if test -z $${i##*/*} || test -z {i%%*/*} ; then echo "invalid config variable $*: $$i is not a valid name"; exit 1; fi; done
+	@for i in $($*) ; do if test -z $${i#.}    || test -z $${i#..} ; then echo "invalid config variable $*: $$i is not a valid name"; exit 1; fi; done
+
+# PROJECT can't be missing
+
+other_checks:
+	@if test -z "$(PROJECT)"; then echo "Missing project name in config file (PROJECT)"; exit 1; fi 
+
+# PROJECT must be a single word.
+
+ifneq (,$(word 2, $(PROJECT)))
+$(error config variable PROJECT cannot have blanks ($(PROJECT)))
+endif
+
+safety: $(CRITICALNAMES:%=%_check) other_checks
+
+#Ensure no tralling blanks
+
+PREFIX:=$(word 1,$(PREFIX%=%))# Do not allow blaks before comment mark
+PROJECT:=$(word 1,$(PROJECT:%=%))# Do not allow blaks before comment mark
+
+# Use GNU make secondary expansion
 
 .SECONDEXPANSION:
 
@@ -92,61 +131,43 @@ $(lib_shared) : %.so : $$($$*_obj:.o=-pic.o)
 # libraries, anyway.
 
 ifneq (,$(filter static, $(MAKECMDGOALS))) 
-#
+
 # Statically linked
-#
 
-$(bin) : % : $$($$*_obj)  | $$(foreach i, $$($$*_lib), $$i.a)
-	$(CC) $(LD_FLAGS) $(LDFLAGS) -L.  $^ -Wl,-Bstatic $(|:lib%.a=-l%) -Wl,-Bdynamic $(patsubst lib%, -l%, $($*_lib_other))  -o $(@:%=.%)
-	echo "#!/bin/sh\n./$(@:%=.%)" > $@
-	chmod u+x $@
-
-$(noinst_bin): % : $$($$*_obj)  | $$(foreach i, $$($$*_lib), $$i.a)
-	$(CC) $(LD_FLAGS) $(LDFLAGS) -L.  $^ -Wl,-Bstatic $(|:lib%.a=-l%) -Wl,-Bdynamic $(patsubst lib%, -l%, $($*_lib_other))  -o $@
+$(bin) $(noinst_bin) : % : $$($$*_obj)  | $$(foreach i, $$($$*_lib), $$i.a)
+	$(CC) $(LD_FLAGS) $(LDFLAGS) $($(*:%=%_ldflags)) -L.  $^ -Wl,-Bstatic $(|:lib%.a=-l%) -Wl,-Bdynamic $(patsubst lib%, -l%, $($*_lib_other))  -o $(@:%=.%)
+	ln -s $(@:%=.%) $@
 	chmod u+x $@
 
 else
-#
+
 # Dynamically linked
-#
 
-$(bin) : % : $$($$*_obj)  | $$(foreach i, $$($$*_lib), $$i.so)
-#	if ! -d $(PREFIX) ; then install -d $(PREFIX) ; fi 
-#	$(CC) $(LD_FLAGS) $(LDFLAGS) -L. -Wl,-rpath=$(realpath $(PREFIX))/lib $^ $(|:lib%.so=-l%) $(patsubst lib%, -l%, $($*_lib_other))  -o $(@:%=.%)
-	$(CC) $(LD_FLAGS) $(LDFLAGS) -L. -Wl,-rpath='$$ORIGIN/../lib' $^ $(|:lib%.so=-l%) $(patsubst lib%, -l%, $($*_lib_other))  -o $(@:%=.%)
-	echo "#!/bin/sh\nLD_LIBRARY_PATH=. ./$(@:%=.%)" > $@
+$(bin) $(noinst_bin) : % :  $$($$*_obj)  | $$(foreach i, $$($$*_lib), $$i.so)
+	$(CC) $(LD_FLAGS) $(LDFLAGS) $($(*:%=%_ldflags)) -L. -Wl,-rpath='$$ORIGIN/../lib' $^ $(|:lib%.so=-l%) $(patsubst lib%, -l%, $($*_lib_other))  -o $(@:%=.%)
+	$(CC) $(LD_FLAGS) $(LDFLAGS) $($(*:%=%_ldflags)) -L. -Wl,-rpath='$$ORIGIN' $^ $(|:lib%.so=-l%) $(patsubst lib%, -l%, $($*_lib_other))  -o $(@)
 	chmod u+x $@
-
-$(noinst_bin): % : $$($$*_obj)  | $$(foreach i, $$($$*_lib), $$i.so)
-#	if ! -d $(PREFIX) ; then install -d $(PREFIX) ; fi 
-	$(CC) $(LD_FLAGS) $(LDFLAGS) -L. -Wl,-rpath=. $^ $(|:lib%.so=-l%) $(patsubst lib%, -l%, $($*_lib_other))  -o $@
-	chmod u+x $@
-
 
 endif
-
-#
-# New scheme
-#
 
 
 # Pattern rules sufix-rules fror object-to-source dependency
 
 %.o : %.c
-	$(CC) $(CPP_FLAGS) $(CPPFLAGS) -I. $(C_FLAGS) $(CFLAGS) -c  $< -o $@
+	$(CC) $(CPP_FLAGS) $($(@:%=%_cppflags)) $(CPPFLAGS) -I. $(C_FLAGS) $($(@:%=%_cflags)) $(CFLAGS) -c  $< -o $@
 
 %-pic.o : %.c
-	$(CC) $(CPP_FLAGS) $(CPPFLAGS) -I. $(C_FLAGS) $(CFLAGS) -c  -fPIC $< -o $@
+	$(CC) $(CPP_FLAGS) $($(@:%=%_cppflags)) $(CPPFLAGS) -I. $(C_FLAGS) $($(@:%=%_cflags)) $(CFLAGS) -c  -fPIC $< -o $@
 
 # Atuomatically calculate header dependences
 
 %.d : %.c
-	$(CC) $(CPP_FLAGS) $(CPPFLAGS) -I. -MM -MG -MT '$(<:.c=.o) $@' $< > $@
+	$(CC) $(CPP_FLAGS) $($(@:%=%_cppflags)) $(CPPFLAGS) -I. -MM -MG -MT '$(<:.c=.o) $@' $< > $@
 
 %-pic.d : %.c
-	$(CC) $(CPP_FLAGS) $(CPPFLAGS) -I. -MM -MG -MT '$(<:.c=-pic.o) $@' $< > $@
+	$(CC) $(CPP_FLAGS) $($(@:%=%_cppflags)) $(CPPFLAGS) -I. -MM -MG -MT '$(<:.c=-pic.o) $@' $< > $@
 
-ifeq (,$(filter clean uninstall, $(MAKECMDGOALS))) # Don't do it if not needed
+ifeq (,$(filter clean uninstall setup help, $(MAKECMDGOALS))) # Don't do it if not needed
 -include $(proj_dep)
 endif
 
@@ -169,6 +190,7 @@ $(PROJECT).tgz : $(proj_src) $(proj_headers) $(EXTRA_DIST) $(gendist_files)
 	cp $^ $(PROJECT)
 	tar zcvf $(PROJECT).tgz $(PROJECT)
 
+
 distcheck: dist
 	if $(MAKE) -C $(PROJECT) ; then echo "\n$(PROJECT).tgz ready for distribution"; \
 	else echo "\nSomething wrong with $(PROJECT).tgz"; fi; echo 
@@ -188,7 +210,6 @@ uninstall:
 	for i in $(lib_all) ; do rm -f $(PREFIX)/lib/$$i; done
 	for i in $(inst_headers) ; do rm  -f $(PREFIX)/include/$$i; done
 	for i in $(bin) ; do rm -f $(PREFIX)/bin/$${i#.}; done
-
 
 # Run tests,  if any
 
@@ -215,3 +236,34 @@ test:	all tests_setup
 
 gendist.mk local.mk : 
 	touch $@
+
+help:
+	@echo "To be written"
+
+
+## Recommended stuff
+
+
+setup:
+	@n=0; for f in $(RECOMMENDED); do \
+            if test ! -f $$f; then n=1; $(MAKE) -s $$f.setup 2>/dev/null; fi;\
+        done; if test "$$n" != 0; then echo "Setup completed"; else echo "Everything already all set"; fi
+
+
+
+$(RECOMMENDED:%=%.setup):
+	@echo -n "Trying project rule for building $(@:%.setup=%)... "
+	@if ! $(MAKE)  -s $(@:%.setup=%) 2>/dev/null; then \
+	    echo -n "none found.\nTrying default rule for building $(@:%.setup=%)... ";\
+            if ! $(MAKE) -s $(@:%.setup=%.default) 2>/dev/null; then \
+               echo "none found.\nFailling back to last resort for $(@:%.setup=%)... created empty file"; \
+                    echo "$(PROJECT)" > $(@:%.setup=%); \
+	    else\
+              echo "default used.";\
+            fi;\
+        fi
+
+INSTALL.default : 
+	@echo "Default install rules" > $(@:%.default=%)
+
+

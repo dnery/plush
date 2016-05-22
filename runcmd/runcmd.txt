@@ -79,7 +79,9 @@ DESCRIPTION
 	argument 'io'.  The integers are interpreted as files descriptors of
 	previously opened files. Files are neither closed nor flushed by the
 	function.  runcmd() does not check if write/write operations are
-	correctly performed.
+	correctly performed. Note that according to this rule, if io[index] 
+	equals index, then the standard IO at descriptir index is not changed.
+	For intsance, passing io[0]=0 does not affect standard input.
 
 
 RETURN VALUE
