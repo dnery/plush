@@ -5,9 +5,7 @@
 #
 
 # Give your project a name, e.g.
-# PROJECT = FooBar
-
-PROJECT = runcmd
+ PROJECT = runcmd
 
 # Name your project's binaires, eg.
 # bin = foo bar
@@ -18,56 +16,44 @@ PROJECT = runcmd
 
 # For each item in $(bin), name the project's libraries to which it shall be linked, e.g.
 # foo_lib = libfoobar
-# bar_lib = libfoobar libm
+# bar_lib = libfoobar 
 
-# For each item in $(bin), name the other libraries to which it shall be linked, e.g.
-# foo_lib_other = libfoobar
-# bar_lib_other = libfoobar libm
+# For each item in $(bin), name the other libraries to which it shall be 
+# linked, e.g.
+# foo_lib_other = 
+# bar_lib_other = libm
 
 
 # Name your project's libraries (to be installed), e.g.
 # lib = libfoobar
 lib = libruncmd
-
 # For each item in $(lib), name the objects needed to build it, e.g.
 # libfoobar_obj = foo.o bar.o
-libruncmd_obj = runcmd.o
-
+libruncmd_obj= runcmd.o
 # For each item in $(lib), name the headers your project installs, e.g.
-<<<<<<< HEAD
-#libfoobar_h = foos.h
-libruncmd_h = runcmd.h
-
-=======
 #libfoobar_h = foo.h
-libruncmd_obj = runcmd.o 
->>>>>>> get_position
+libruncmd_h= runcmd.h
 # Name your project's auxuliary binaries (not to be installed), e.g.
 # noinst_bin = example
-noinst_bin = test-001 test-002 test-003 test-004 t1 t2  
-
+noinst_bin = test-001 test-002 test-003 test-004 t1 t2
 # For each item in $(noinst_bin), name the objects needed to build it, e.g.
 # example_obj = example.o 
-<<<<<<< HEAD
+
 test-001_obj = test-001.o testutils.o
 test-002_obj = test-002.o testutils.o
 test-003_obj = test-003.o testutils.o
 test-004_obj = test-004.o testutils.o
 t1_obj = t1.o
 t2_obj = t2.o
-
-# For each item in $(noinst_bin), name the libraries to which it's to be linked, e.g.
-=======
-
-libruncmd_h = runcmd.h 
-# For each item in $(noinst_bin), name the libraries to which it's to be 
+# For each item in $( noinst_bin), name the libraries to which it's to be 
 # linked, e.g.
->>>>>>> get_position
 # example_lib = libfoobar
+
 test-001_lib = libruncmd
 test-002_lib = libruncmd
 test-003_lib = libruncmd
 test-004_lib = libruncmd
+
 
 # If any targets (either binary or object) needs specific compiler flags to be
 # built, list them here, e.g.
@@ -75,23 +61,28 @@ test-004_lib = libruncmd
 # bar.o_cppflags = -D_POSIX_C_SOURCE
 test-002_cppflags = -pthread
 test-002_ldflags = -pthread
-
-
-# Extra files to go in the distribution (add as needed)
+# Extra files to go in the distribution (add as needed), e.g.
+# EXTRA_DIST = foo.txt
 
 EXTRA_DIST = runcmd.txt
-
 # List the automatically generated, distributed source files of any kind.
 # These files are generated in the development environment but should
-# be already available in the building enviroment. E.g. config scripts.
+# be already available in the building enviroment such as configuration 
+# scripts etc, e.g.
+# gendist_files = config.h
 
 gendist_files = debug.h Makefile
-
-# Installation prefix
+# Installation prefix, e.g.
+# PREFIX=./local
 
 PREFIX=./local
-
-# Customize the building environemnt (modify as desired)
+# Customize the building environemnt (modify as desired), e.g.
+# CC = gcc
+# CPP_FLAGS = -I. -Wall --ansi --pedantic-errors -D_POSIX_C_SOURCE=200112L 
+# C_FLAGS = 
+# LD_FLAGS = -L.
+# MAKE = make
+# AR = ar
 
 CC = gcc
 CPP_FLAGS = -Wall --ansi --pedantic-errors -D_POSIX_C_SOURCE=200809L 
@@ -99,12 +90,12 @@ C_FLAGS =
 LD_FLAGS = 
 MAKE = make
 AR = ar
-
-# Housekeeping (name temporary files to clean)
-# EXTRA_GARBAGE = *~
-EXTRA_GARBAGE = *~ \#*
-
-# Name your tests
+# Name your test programns, if any e.g.
+# tests-bin = testfoo
 
 tests-bin = test-001 test-002 test-003 test-004
+# Housekeeping (name temporary files to clean) e.g.
+# EXTRA_GARBAGE = *~
+# EXTRA_GARBAGE = *~ \#*
 
+EXTRA_GARBAGE = *~ \#*
