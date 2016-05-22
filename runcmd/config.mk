@@ -34,15 +34,21 @@ lib = libruncmd
 libruncmd_obj = runcmd.o
 
 # For each item in $(lib), name the headers your project installs, e.g.
+<<<<<<< HEAD
 #libfoobar_h = foos.h
 libruncmd_h = runcmd.h
 
+=======
+#libfoobar_h = foo.h
+libruncmd_obj = runcmd.o 
+>>>>>>> get_position
 # Name your project's auxuliary binaries (not to be installed), e.g.
 # noinst_bin = example
 noinst_bin = test-001 test-002 test-003 test-004 t1 t2  
 
 # For each item in $(noinst_bin), name the objects needed to build it, e.g.
 # example_obj = example.o 
+<<<<<<< HEAD
 test-001_obj = test-001.o testutils.o
 test-002_obj = test-002.o testutils.o
 test-003_obj = test-003.o testutils.o
@@ -51,6 +57,12 @@ t1_obj = t1.o
 t2_obj = t2.o
 
 # For each item in $(noinst_bin), name the libraries to which it's to be linked, e.g.
+=======
+
+libruncmd_h = runcmd.h 
+# For each item in $(noinst_bin), name the libraries to which it's to be 
+# linked, e.g.
+>>>>>>> get_position
 # example_lib = libfoobar
 test-001_lib = libruncmd
 test-002_lib = libruncmd
