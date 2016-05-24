@@ -30,23 +30,22 @@
 #include <runcmd.h>
 #include <debug.h>
 
-
-/* Executes 'command' in a subprocess. Information on the subprocess execution
-   is stored in 'result' after its completion, and can be inspected with the
-   aid of macros made available for this purpose. Argument 'io' is a pointer
-   to an integer vector where the first, second and third positions store
+ #define CHK_NULL(value) value==NULL ? 1 : 0
+ /* Executes 'command' in a subprocess. Information on the subprocess execution
+    is stored in 'result' after its completion, and can be inspected with the
+    aid of macros made available for this purpose. Argument 'io' is a pointer
+    to an integer vector where the first, second and third positions store
    file descriptors to where standard input, output and error, respective, 
    shall be redirected; if NULL, no redirection is performed. On
    success, returns subprocess' pid; on error, returns 0. */
 
-int runcmd (const char *command, int *result, const int *io) /* ToDO: const char* */
-{
+int runcmd (const char *command, int *result, const int *io){
   int pid, status; 
   int aux, i, tmp_result;
-  int exec_ok[2];
+  int exec_ok[2], bkp_fd[3];
   char *args[RCMD_MAXARGS], *p, *cmd; 	
 
-
+  
   tmp_result = 0;
 
   /* Parse arguments to obtain an argv vector. */
@@ -61,15 +60,27 @@ int runcmd (const char *command, int *result, const int *io) /* ToDO: const char
   i--;
 
   /* Create a subprocess. */
-
   sysfail(pipe(exec_ok)<0,-1);
+  /*File Descriptors Backup*/
+  if(!(CHK_NULL(io))){
+
+      dup2(STDIN_FILENO,bkp_fd[0]);
+      dup2(STDOUT_FILENO,bkp_fd[1]);
+      dup2(STDERR_FILENO,bkp_fd[2]);
+  }
   pid = fork();
   sysfail (pid<0, -1);
 
-  if (pid>0)			/* Caller process (parent). */
-    {
+  if (pid>0){			/* Caller process (parent). */
       close(exec_ok[1]);
       aux = wait (&status);
+
+      if(!(CHK_NULL(io))){
+       
+        dup2(bkp_fd[0],STDIN_FILENO);
+        dup2(bkp_fd[1],STDOUT_FILENO);
+        dup2(bkp_fd[2],STDERR_FILENO);
+      }
       sysfail (aux<0, -1);
       
       /* Collect termination mode. */
@@ -81,8 +92,15 @@ int runcmd (const char *command, int *result, const int *io) /* ToDO: const char
       if(read(exec_ok[0],NULL,1)==0)
         tmp_result |=EXECOK;
     }
-  else				/* Subprocess (child) */
-    {
+  else{ /*Child Procces.*/
+      if(!(CHK_NULL(io))){
+        close(1);
+        close(2);
+        close(3);
+        dup2(io[0],STDIN_FILENO);
+        dup2(io[1],STDOUT_FILENO);
+        dup2(io[2],STDERR_FILENO);
+      }
       aux = execvp (args[0], args);
       write(exec_ok[1],"False!",1);
       close(exec_ok[1]);
@@ -104,4 +122,3 @@ int runcmd (const char *command, int *result, const int *io) /* ToDO: const char
 */
 
 void (*runcmd_onexit)(void) = NULL;
-
