@@ -20,7 +20,8 @@
    
    Code written by Henrique F. M. Freitas (https://github.com/Henrique1792)
 */
-
+ #define _GNU_SOURCE
+ #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -63,13 +64,6 @@ int runcmd (const char *command, int *result, const int *io){
 
   /* Create a subprocess. */
   sysfail(pipe(exec_ok)<0,-1);
-  /*File Descriptors Backup*/
-  if(!(CHK_NULL(io))){
-
-      dup2(STDIN_FILENO,bkp_fd[0]);
-      dup2(STDOUT_FILENO,bkp_fd[1]);
-      dup2(STDERR_FILENO,bkp_fd[2]);
-  }
   pid = fork();
   sysfail (pid<0, -1);
 
@@ -77,14 +71,21 @@ int runcmd (const char *command, int *result, const int *io){
       close(exec_ok[1]);
       aux = wait (&status);
 
+      sysfail (aux<0, -1);
+      
       if(!(CHK_NULL(io))){
-       
+        /*Recover values from bkp*/
         dup2(bkp_fd[0],STDIN_FILENO);
         dup2(bkp_fd[1],STDOUT_FILENO);
         dup2(bkp_fd[2],STDERR_FILENO);
+        close(bkp_fd[0]);
+        close(bkp_fd[1]);
+        close(bkp_fd[2]);
+        close(io[0]);
+        close(io[1]);
+        close(io[2]);
       }
-      sysfail (aux<0, -1);
-      
+
       /* Collect termination mode. */
       if (WIFEXITED(status)){ 
       	tmp_result |= NORMTERM;
@@ -96,14 +97,29 @@ int runcmd (const char *command, int *result, const int *io){
     }
   else{ /*Child Procces.*/
       if(!(CHK_NULL(io))){
-        close(1);
-        close(2);
-        close(3);
+       /*Old fd backup*/ 
+        dup2(STDIN_FILENO,bkp_fd[0]);
+        dup2(STDOUT_FILENO,bkp_fd[1]);
+        dup2(STDERR_FILENO,bkp_fd[2]);
+        
+        /*Change default descriptors*/
         dup2(io[0],STDIN_FILENO);
         dup2(io[1],STDOUT_FILENO);
         dup2(io[2],STDERR_FILENO);
+        close(io[0]);
+        close(io[1]);
+        close(io[2]);
       }
       aux = execvp (args[0], args);
+      if(!(CHK_NULL(io))){
+        /*Recover values from bkp*/
+        dup2(bkp_fd[0],STDIN_FILENO);
+        dup2(bkp_fd[1],STDOUT_FILENO);
+        dup2(bkp_fd[2],STDERR_FILENO);
+        close(bkp_fd[0]);
+        close(bkp_fd[1]);
+        close(bkp_fd[2]);
+      }
       write(exec_ok[1],"False!",1);
       close(exec_ok[1]);
       close(exec_ok[0]);
@@ -111,8 +127,7 @@ int runcmd (const char *command, int *result, const int *io){
       exit (EXECFAILSTATUS);
     }
 
-  if (result)
-    *result = tmp_result;
+  if (result)    *result = tmp_result;
 
   free (p);
   return pid;			/* Only parent reaches this point. */
