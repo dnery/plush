@@ -3,27 +3,39 @@
 
 ~~KEEP CALM AND CARRY ON~~
 
-
 ##Objectives
   We intend to develop a shell, during 2016's OS-2 course
 
-##Things done
-  1. Simple parser working.
-  2. Module-based structure.
-  3. exec loop working.
-  4. Simple Makefile.
-
-##Things 2 do
-  1. **Set up output redirect**
-  2. **Set up dynamic libs**
-  3. **Set up assinchronous signals.**
-  4. **Set up pipelines**
-
-##Waiting 4 instructions
-  *waiting for instructions relative to assinchronous signals.*
+##Rebooting Project
+  Due to problems with the approach done, we're rebuilding it.
 
 
-##IMPORTANT!!!
-  _we'll post every code ASAP, we're using the following repo at first, and we'll keep that way. Just post things working and possible issues here_
+##Shue - Director's Cut
 
-  https://github.com/Henrique1792/Project_Shell
+##Topics:
+### 1. Define Structures for:
+    .1 Buffering;
+    .2 Pipelining;
+
+### 2. Write the parser
+  Get a new parser for our project - it has to deal with:
+    .1 Find all symbols;
+    .2 Adjust every symbol and argument properly for the structures above.
+
+### 3. Marks to be set
+    .1 Things done - They doesn't need changes
+      Autotools port;
+    .2 To be rearranged:
+      Execution; Redirection, Non-Blocking execution (&);
+    .3 To be set up now
+      Pipeline("|"),Signal Handler.
+
+##References:
+  [Linux docs link](http://linux.die.net/)
+  Pay attention with some of the following instructions:
+  exec;
+  pipe;
+  open;
+  close;
+  dup2;
+  sigacition.
