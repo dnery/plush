@@ -169,5 +169,31 @@ char * stringdup (const char *str){
 
 
 int parse_cmd(BUF_T *src, PIPELINE_T *tgt){
- 
+  int i=0,j,truncated;
+  char *token, *token2, *bkstring;
+  truncated = 0;
+  truncated |= find_modifiers(src, tgt);
+
+  i=0;
+  while((i<MAX_COMMANDS) && (token=strtok_r(i==0 ? src->buffer:NULL,"|",&bkstring))){
+    while(token[0]==' ' || token[0]=='\t') token++;
+    j=0;
+    while((j<MAX_ARGS) && (token2 = strtok(j==0 ? token :NULL, " \t"))){
+     tgt->cmd[i][j]=token2;
+     j++;
+    }
+    tgt->cmd[i][j]=NULL;
+    i++;
+    truncated |= strtok (NULL, " \t") ? PARSER_TOO_MANY_ARGUMENTS : 0;
+    tgt->n_args[i-1]=j;
+  }
+  tgt->cmd[i][0]=NULL;
+  truncated |= strtok (NULL, " \t") ? PARSER_TOO_MANY_ARGUMENTS : 0;
+  tgt->n_cmd=i;
+  
+  debug (truncated & PARSER_TOO_MANY_ARGUMENTS, "Too many arguments in a command");
+  debug (truncated & PARSER_TOO_MANY_COMMANDS, "Too many commands in a pipeline");
+
+  return truncated;
+
 }
