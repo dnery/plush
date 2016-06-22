@@ -13,6 +13,10 @@
 #define Redirect_STDin(PipeLine) (PipeLine->file_in[0] != '\0')
 #define REDIRECT_STDout(PipeLine) (PipeLine->file_out[0] != '\0')
 
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <debug.h>
 
 
 /*BUF_T

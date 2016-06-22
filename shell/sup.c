@@ -1,8 +1,3 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <debug.h>
-
 #include <sup.h>
 
 #define isBlank(c) ((c==' ') || (c=='\t') || (c=='\n'))
