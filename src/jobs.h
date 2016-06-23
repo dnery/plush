@@ -1,5 +1,5 @@
-#ifndef SHALALA_JOBS_H
-#define SHALALA_JOBS_H
+#ifndef FARST_JOBS_H
+#define FARST_JOBS_H
 
 #include <sys/types.h>
 #include <termios.h>
@@ -38,15 +38,12 @@ typedef struct job_t {
 
 } job_t;
 
-/*
- * This holds the current head in the job array
- */
-job_t *first_job = NULL;
+job_t *first_job = NULL; /* Holds the current head in the job array */
 
 /*
  * Find job element with certain pgid element
  */
-static inline job_t *find(pid_t pgid)
+static job_t *find(pid_t pgid)
 {
         job_t *j = first_job;
 
@@ -60,7 +57,7 @@ static inline job_t *find(pid_t pgid)
 /*
  * Returns true if all processes in a job are suspended
  */
-static inline int is_suspended(job_t *job)
+static int is_suspended(job_t *job)
 {
         process_t *p = job->first_proc;
 
@@ -74,7 +71,7 @@ static inline int is_suspended(job_t *job)
 /*
  * Returns true if all processes in a job are completed
  */
-static inline int is_completed(job_t *job)
+static int is_completed(job_t *job)
 {
         process_t *p = job->first_proc;
 
@@ -85,4 +82,41 @@ static inline int is_completed(job_t *job)
         return 1;
 }
 
-#endif /* ifndef SHALALA_JOBS_H */
+/*
+ * TODO
+ */
+void put_in_foreground(job_t *job, int cont);
+
+/*
+ * TODO
+ */
+void put_in_background(job_t *job, int cont);
+
+/* ========================================================================== */
+
+/*
+ * TODO
+ */
+int set_process_status(pid_t pid, int status);
+
+/*
+ * TODO
+ */
+void job_update_status();
+
+/*
+ * TODO
+ */
+void job_wait_blocked(job_t *job);
+
+/*
+ * TODO
+ */
+void job_format_info(job_t *job, const char *status);
+
+/*
+ * TODO
+ */
+void job_do_notify();
+
+#endif /* ifndef FARST_JOBS_H */
