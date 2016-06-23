@@ -34,3 +34,7 @@
 *.swp
 shue
 tags
+
+# Fasd branch
+build/
+farst
