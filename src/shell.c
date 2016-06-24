@@ -45,10 +45,10 @@ void sh_launchj(job_t *job, int foreground)
 
         input = job->stdin;
 
-        process_t *p = job->first_proc;
+        process_t *p = job->first_process;
         for (; p != NULL; p = p->next) {
 
-                /* Set up pipes if applicable and output */
+                /* Set up pipes if applicable, set output */
                 if (p->next != NULL) {
                         check(pipe(iopipe) >= 0);
                         output = iopipe[1];
@@ -77,22 +77,20 @@ void sh_launchj(job_t *job, int foreground)
                         }
                 }
 
-                /* Clean up the pipes */
+                /* Clean up the pipes, set input */
                 if (input != job->stdin)
                         close(input);
                 if (output != job->stdout)
                         close(output);
 
-                /* Set up input */
                 input = iopipe[0];
         }
-        /* Job is launched */
+
         job_format_info(job, "launched");
 
-        /* Either wait until job is finished */
+        /* Either wait until job is finished, or engage new */
         if (!shell_interactive)
                 job_wait_blocked(job);
-        /* Otherwise you're ready to engage a new job */
         else if (foreground)
                 put_in_foreground(job, 0);
         else
@@ -126,6 +124,56 @@ void sh_launchp(process_t *p, pid_t pgid, int in, int out, int err,
         }
 
         /*
-         * TODO A lotta shit here!
+         * Set stdanard IO channels for new process.
+         *
+         * TODO Redirection has to happen here.
          */
+        if (in != STDIN_FILENO) {
+                dup2(in, STDIN_FILENO);
+                close(in);
+        }
+        if (out != STDOUT_FILENO) {
+                dup2(out, STDOUT_FILENO);
+                close(out);
+        }
+        if (err != STDERR_FILENO) {
+                dup2(err, STDERR_FILENO);
+                close(err);
+        }
+
+        /*
+         * Exec and éxit on error.
+         */
+        execvp(p->argv[0], p->argv);
+        warn("End-point execvp.\n");
+        exit(errno);
+}
+
+void put_in_foreground(job_t *job, int cont)
+{
+        /* Put jab in foreground */
+        tcsetpgrp(shell_terminal, job->pgid);
+
+        /* Continue work, if specified */
+        if (cont) {
+                tcsetattr(shell_terminal, TCSADRAIN, &job->modes);
+                check(kill(-job->pgid, SIGCONT) >= 0);
+        }
+
+        /* Wait for job to report */
+        job_wait_blocked(job);
+
+        /* Put shell back in command */
+        tcsetpgrp(shell_terminal, shell_pgid);
+
+        /* Restore shell terminal modes  */
+        tcgetattr(shell_terminal, &job->modes);
+        tcsetattr(shell_terminal, TCSADRAIN, &shell_modes);
+}
+
+void put_in_background(job_t *job, int cont)
+{
+        /* Just continue work, if so specified */
+        if (cont)
+                check(kill(-job->pgid, SIGCONT) >= 0);
 }

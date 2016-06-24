@@ -31,4 +31,14 @@ void sh_launchj(job_t *job, int foreground);
 void sh_launchp(process_t *p, pid_t pgid, int in, int out, int err,
                 int foreground);
 
+/*
+ * TODO
+ */
+void put_in_foreground(job_t *job, int cont);
+
+/*
+ * TODO
+ */
+void put_in_background(job_t *job, int cont);
+
 #endif /* ifndef FARST_SHELL_H */
