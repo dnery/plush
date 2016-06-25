@@ -5,6 +5,8 @@
 #include <termios.h>
 #include <unistd.h>
 
+/* == DATA STRUCTURES & GLOBALS ============================================= */
+
 /*
  * A process is a node in a pipeline
  */
@@ -38,47 +40,71 @@ typedef struct job_t {
 
 } job_t;
 
-job_t *first_job = NULL; /* Holds the current head in the job array */
+job_t *first_job; /* Holds the current head in the job array */
 
 /*
- * Find job element with certain pgid element
+ * TODO
+ */
+void create_job();
+
+/*
+ * TODO
+ */
+void delete_job(job_t *job);
+
+/* == MACROS & SHIT ========================================================= */
+
+/*
+ * Display some job info for the user to look at.
+ */
+#define format_job_info(job, status) do { \
+        fprintf(stderr, "Job %ld (%s): %s\n", (long)(job)->pgid, (status), (job)->command); \
+} while (0) \
+
+/* == MOSTLY INTERNAL LINKAGE =============================================== */
+
+/*
+ * Find job element with certain pgid element.
  */
 job_t *find_job(pid_t pgid);
 
 /*
- * Returns true if all processes in a job are suspended
+ * Returns true if all processes in a job are suspended.
  */
 int is_suspended(job_t *job);
 
 /*
- * Returns true if all processes in a job are completed
+ * Returns true if all processes in a job are completed.
  */
 int is_completed(job_t *job);
 
 /*
- * TODO
+ * Update process status, according to waitpid return.
+ *
+ * Returns zero upon succesful completion, non-zero otherwise.
  */
-int set_process_status(pid_t pid, int status);
+int update_status(pid_t pid, int status);
 
-/* ========================================================================== */
+/* == MOSTLY EXTERNAL LINKAGE =============================================== */
 
 /*
- * TODO
+ * Poll all child processes, without blocking.
+ *
+ * Update if there's status info available.
  */
 void job_update_status();
 
 /*
- * TODO
+ * Poll all child processes, blocking execution until done.
+ *
+ * Update if there's status info available.
  */
 void job_wait_blocked(job_t *job);
 
 /*
- * TODO
- */
-void job_format_info(job_t *job, const char *status);
-
-/*
- * TODO
+ * Notify user about done or suspended jobs.
+ *
+ * Delete terminated jobs from active list.
  */
 void job_do_notify();
 

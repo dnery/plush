@@ -2,9 +2,8 @@
 ~~NOT CALM NOT CALM NOT CALM~~
 
 ## Progress
-Currently on chapter two and able to spawn an asyncronous independent job
-control shell instance... Working on fork/exec loop. Actually doing the whole
-shebang all at once, so brace for it.
+Almost done on the fork/exec loop. Still missing routines for continuing
+suspended jobs. _WE'RE ALMOST THERE BOYS_!!!
 
 ## References:
  - [Linux Docs Link](http://linux.die.net/)

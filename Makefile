@@ -5,7 +5,7 @@ CFLAGS = --ansi -D_POSIX_C_SOURCE=20011L -Werror --pedantic-errors -O0 -g
 # Local variables
 SRCDIR = ./src/
 BINDIR = ./build/
-OBJ = main.o shell.o
+OBJ = jobs.o shell.o main.o
 
 # Path-resolved objects
 RESOBJ = $(addprefix $(BINDIR), $(OBJ))

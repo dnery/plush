@@ -1,10 +1,14 @@
 #include "shell.h"
 #include "debug.h"
+#include "jobs.h"
 
 #include <signal.h>
 
 void sh_init()
 {
+        /* List head */
+        first_job = NULL;
+
         /* Check for interactivity */
         shell_terminal = STDIN_FILENO;
         shell_interactive = isatty(shell_terminal);
@@ -39,11 +43,9 @@ void sh_init()
 void sh_launchj(job_t *job, int foreground)
 {
         pid_t pid;                      /* PID for the newly spawned process */
-        int input;                      /* Input file descriptor */
         int output;                     /* Output file descriptor */
+        int input = job->stdin;         /* Input file descriptor */
         int iopipe[2] = {-1,-1};        /* Inter-process comms pipe */
-
-        input = job->stdin;
 
         process_t *p = job->first_process;
         for (; p != NULL; p = p->next) {
@@ -86,7 +88,7 @@ void sh_launchj(job_t *job, int foreground)
                 input = iopipe[0];
         }
 
-        job_format_info(job, "launched");
+        format_job_info(job, "launched");
 
         /* Either wait until job is finished, or engage new */
         if (!shell_interactive)

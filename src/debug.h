@@ -18,7 +18,7 @@ extern "C"
 } while (0) \
 
 #define warn(exp) do { \
-        fprintf(stdout, "Warning: " exp); \
+        fprintf(stderr, "Warning: " exp); \
 } while (0) \
 
 #define check(exp) do { if (!(exp)) { \
