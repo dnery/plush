@@ -3,6 +3,24 @@
 
 #include <sys/wait.h>
 
+int create_process(job_t *job, char *argv[])
+{
+        return 0;
+}
+
+void delete_process(process_t *process)
+{
+}
+
+int create_job(job_t **job)
+{
+        return 0;
+}
+
+void delete_job(job_t *job)
+{
+}
+
 job_t *find_job(pid_t pgid)
 {
         job_t *j = first_job;
@@ -17,7 +35,7 @@ int is_suspended(job_t *job)
 {
         process_t *p = job->first_process;
         for (; p != NULL; p = p->next)
-                if (!p->suspended)
+                if (!p->suspended && !p->completed)
                         return 0;
 
         return 1;
@@ -33,26 +51,45 @@ int is_completed(job_t *job)
         return 1;
 }
 
-int update_status(pid_t pid, int status)
+int process_update_status(pid_t pid, int status)
 {
         if (pid > 0) {
 
+                /* For all existing jobs... */
                 job_t *j = first_job;
                 for (; j != NULL; j = j->next) {
 
+                        /* For all existing processes... */
                         process_t *p = j->first_process;
                         for (; p != NULL; p = p->next) {
 
+                                /* Once the pid is found, te status is set */
                                 if (p->pid == pid) {
                                         p->status = status;
 
+                                        /*
+                                         * Process is either stopped or terminated.
+                                         *
+                                         * WIFSTOPPED
+                                         *      -> non-zero if child process is stopped.
+                                         *
+                                         * WIFSIGNALED
+                                         *      -> non-zero if child process terminated upon miss-handling a signal.
+                                         *
+                                         * WIFEXITED
+                                         *      -> non-zero if child process exited normally (exit/_exit).
+                                         */
                                         if (WIFSTOPPED(status)) {
                                                 p->suspended = 1;
+                                                fprintf(stderr, "Process %d stopped by signal %d.\n", (int)pid, WSTOPSIG(p->status));
                                         } else {
                                                 p->completed = 1;
 
+                                                if (WIFEXITED(status))
+                                                        fprintf(stderr, "Process %d done with status %d.\n", (int)pid, WEXITSTATUS(p->status));
+
                                                 if (WIFSIGNALED(status))
-                                                        fprintf(stderr, "Process %d terminated by sygnal %d.\n", (int)pid, WTERMSIG(p->status));
+                                                        fprintf(stderr, "Process %d terminated by signal %d.\n", (int)pid, WTERMSIG(p->status));
                                         }
 
                                         return 0;
@@ -82,7 +119,7 @@ void job_update_status()
 
         do {
                 pid = waitpid(-1, &status, WUNTRACED|WNOHANG);
-        } while (!update_status(pid, status));
+        } while (!process_update_status(pid, status));
 }
 
 void job_wait_blocked(job_t *job)
@@ -92,19 +129,19 @@ void job_wait_blocked(job_t *job)
 
         do {
                 pid = waitpid(-1, &status, WUNTRACED);
-        } while (!update_status(pid, status)
+        } while (!process_update_status(pid, status)
                         && !is_suspended(job)
                         && !is_completed(job));
 }
 
 void job_do_notify()
 {
-        job_t *j, *nextj, *lastj; /* Job iterators */
+        job_t *j = first_job;   /* Job iterator */
+        job_t *nextj = NULL;    /* Job iterator */
+        job_t *lastj = NULL;    /* Job iterator */
 
         job_update_status();
 
-        lastj = NULL;
-        j = first_job;
         for (; j != NULL; j = nextj) {
                 nextj = j->next;
 

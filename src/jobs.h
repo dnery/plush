@@ -5,11 +5,9 @@
 #include <termios.h>
 #include <unistd.h>
 
-/* == DATA STRUCTURES & GLOBALS ============================================= */
+/* == DATA STRUCTURES, GLOBALS & ALLOCATION ================================= */
 
-/*
- * A process is a node in a pipeline
- */
+/* A process is a node in a pipeline */
 typedef struct process_t {
 
         pid_t pid;                      /* Process ID */
@@ -23,9 +21,7 @@ typedef struct process_t {
 
 } process_t;
 
-/*
- * A job manages this process pipeline
- */
+/* A job manages this process pipeline */
 typedef struct job_t {
 
         pid_t pgid;                     /* Process group ID */
@@ -40,15 +36,26 @@ typedef struct job_t {
 
 } job_t;
 
-job_t *first_job; /* Holds the current head in the job array */
+/* First job in the job array */
+job_t *first_job;
 
 /*
- * TODO
+ * TODO Allocate a process and insert it into the pipeline.
  */
-void create_job();
+int create_process(job_t *job, char *argv[]);
 
 /*
- * TODO
+ * TODO Delete process from the pipeline.
+ */
+void delete_process(process_t *process);
+
+/*
+ * TODO Allocate a job and insert it into the job array.
+ */
+int create_job(job_t **job);
+
+/*
+ * TODO Delete job from the job array.
  */
 void delete_job(job_t *job);
 
@@ -83,7 +90,7 @@ int is_completed(job_t *job);
  *
  * Returns zero upon succesful completion, non-zero otherwise.
  */
-int update_status(pid_t pid, int status);
+int process_update_status(pid_t pid, int status);
 
 /* == MOSTLY EXTERNAL LINKAGE =============================================== */
 
@@ -102,7 +109,7 @@ void job_update_status();
 void job_wait_blocked(job_t *job);
 
 /*
- * Notify user about done or suspended jobs.
+ * Poll all jobs, notifying the user about done or suspended jobs.
  *
  * Delete terminated jobs from active list.
  */

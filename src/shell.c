@@ -40,7 +40,7 @@ void sh_init()
         }
 }
 
-void sh_launchj(job_t *job, int foreground)
+void sh_launch_job(job_t *job, int foreground)
 {
         pid_t pid;                      /* PID for the newly spawned process */
         int output;                     /* Output file descriptor */
@@ -63,8 +63,8 @@ void sh_launchj(job_t *job, int foreground)
 
                 if (pid == 0) {
                         /* I am the fork */
-                        sh_launchp(p, job->pgid, input, output, job->stderr,
-                                        foreground);
+                        sh_launch_process(p, job->pgid, input, output,
+                                        job->stderr, foreground);
                 } else {
                         /* I am parent */
                         p->pid = pid;
@@ -72,8 +72,8 @@ void sh_launchj(job_t *job, int foreground)
                         if (shell_interactive) {
 
                                 /* MAN SPECIFIES: If pgid is 0, pid of indicated process shall be used */
-                                /* if (job->pgid == 0)
-                                        job->pgid = pid; */
+                                if (job->pgid == 0)
+                                        job->pgid = pid;
 
                                 setpgid(pid, job->pgid);
                         }
@@ -99,7 +99,7 @@ void sh_launchj(job_t *job, int foreground)
                 put_in_background(job, 0);
 }
 
-void sh_launchp(process_t *p, pid_t pgid, int in, int out, int err,
+void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
                 int foreground)
 {
         pid_t pid;
@@ -108,8 +108,8 @@ void sh_launchp(process_t *p, pid_t pgid, int in, int out, int err,
                 pid = getpid();
 
                 /* MAN SPECIFIES: If pgid is 0, pid of indicated process shall be used */
-                /* if (pgid == 0)
-                        pgid = pid; */
+                if (pgid == 0)
+                        pgid = pid;
 
                 setpgid(pid, pgid);
 
@@ -144,11 +144,26 @@ void sh_launchp(process_t *p, pid_t pgid, int in, int out, int err,
         }
 
         /*
-         * Exec and éxit on error.
+         * Exec and exit on error.
          */
         execvp(p->argv[0], p->argv);
         warn("End-point execvp.\n");
         exit(errno);
+}
+
+void sh_continue(job_t *job, int foreground)
+{
+        /* Mark suspended job as running again */
+        process_t *p = job->first_process;
+        for (; p != NULL; p = p->next)
+                p->suspended = 0;
+        job->notified = 0;
+
+        /* Put in fg or bg, sending non-zero cont */
+        if (foreground)
+                put_in_foreground(job, 1);
+        else
+                put_in_background(job, 1);
 }
 
 void put_in_foreground(job_t *job, int cont)
