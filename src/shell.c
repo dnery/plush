@@ -25,7 +25,8 @@ void sh_init()
                 signal(SIGTTIN, SIG_IGN);
                 signal(SIGTTOU, SIG_IGN);
 
-                /* signal(SIGCHLD, SIG_IGN);
+                /*
+                 * signal(SIGCHLD, SIG_IGN);
                  *
                  * Ignoring SIGCHLD (or not implementing a handler) _will_
                  * cause waitpid to immediately return -1, thus, in our case,
@@ -47,13 +48,13 @@ void sh_init()
 
 void sh_launch_job(job_t *job, int foreground)
 {
-        pid_t pid;                      /* PID for the newly spawned process */
-        int output;                     /* Output file descriptor */
-        int input = job->stdin;         /* Input file descriptor */
-        int iopipe[2] = {-1,-1};        /* Inter-process comms pipe */
+        process_t *p;                                   /* Process iteration */
+        pid_t pid;                                      /* PID for the newly spawned process */
+        int output;                                     /* Output file descriptor */
+        int input = job->stdin;                         /* Input file descriptor */
+        int iopipe[2] = {STDIN_FILENO, STDOUT_FILENO};  /* Inter-process comms pipe */
 
-        process_t *p = job->first_process;
-        for (; p != NULL; p = p->next) {
+        for (p = job->first_process; p != NULL; p = p->next) {
 
                 /* Set up pipes if applicable, set output */
                 if (p->next != NULL) {

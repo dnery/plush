@@ -9,7 +9,7 @@ process_t *create_process(job_t *job, char **argv)
         process_t *k = NULL; /* Process iterator */
 
         /* Allocate p and zer0 it out */
-        if ((p = malloc(sizeof *p)) == NULL)
+        if ((p = malloc(sizeof(process_t))) == NULL)
                 return NULL;
 
         p->suspended = 0;
@@ -20,11 +20,11 @@ process_t *create_process(job_t *job, char **argv)
         p->pid = -1;
 
         /* insert p at the end of process queue */
-        if ((k = job->first_process) != NULL) {
-                for (; k->next != NULL; k = k->next);
-                k->next = p;
-        } else {
+        if (job->first_process == NULL) {
                 job->first_process = p;
+        } else {
+                for (k = job->first_process; k->next != NULL; k = k->next);
+                k->next = p;
         }
 
         /* return successfully */
@@ -46,7 +46,7 @@ job_t *create_job(pid_t pgid)
                 return NULL;
 
         j->pgid = getpid();
-        setpgid(j->pgid, pgid);
+        setpgid(j->pgid, j->pgid);
 
         j->stdin = STDIN_FILENO;
         j->stdout = STDOUT_FILENO;
@@ -58,12 +58,13 @@ job_t *create_job(pid_t pgid)
         j->next = NULL;
 
         /* insert j at the end of the job queue */
-        if ((k = first_job) != NULL) {
-                for (; k->next != NULL; k = k->next);
-                k->next = j;
-        } else {
+        if (first_job == NULL) {
                 first_job = j;
+        } else {
+                for (k = first_job; k->next != NULL; k = k->next);
+                k->next = j;
         }
+
         /* return successfully */
         return j;
 }
@@ -76,7 +77,7 @@ void delete_job(job_t *job)
                 delete_process(p);
                 p = n;
         }
-
+        free(job->command);
         free(job);
 }
 
@@ -175,7 +176,7 @@ void job_update_status()
         pid_t pid;      /* PID retrieved from waitpid */
 
         do {
-                pid = waitpid(0, &status, WUNTRACED|WNOHANG);
+                pid = waitpid(-1, &status, WUNTRACED|WNOHANG);
         } while (!process_update_status(pid, status));
 }
 
@@ -185,7 +186,7 @@ void job_wait_blocked(job_t *job)
         pid_t pid;      /* PID retrieved from waitpid */
 
         do {
-                pid = waitpid(0, &status, WUNTRACED);
+                pid = waitpid(-1, &status, WUNTRACED);
         } while (!process_update_status(pid, status)
                         && !is_suspended(job)
                         && !is_completed(job));

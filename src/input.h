@@ -1,42 +1,29 @@
 #ifndef FARST_INPUT_H
 #define FARST_INPUT_H
 
+#include "shell.h"
+
 #include <stdio.h>
 
 #define CMD_BG          "&"
 #define CMD_PIPE        "|"
-#define CMD_DELIM       " \n\t\r"
+#define CMD_DELIM       " \n\t\r\a"
 #define CMD_MAXARGV     256
-#define CMD_MAXCHARS    2048
-
-/* Simple comand type structure */
-typedef struct command_t {
-
-        int fg;
-        int argc;
-        char **argv;
-        char *_line;
-
-} command_t;
+#define CMD_MAXCHARS    512
 
 /*
- * Tokenize a string into a string array based on CMD_DELIM.
+ * Returns true if line is empty.
  */
-size_t tokenize(const char *line, char **argv[]);
+int is_null(const char *line);
 
 /*
- * Read a line (carefully) from input.
+ * Reads a line from input stream.
  */
 char *read_line(FILE *stream);
 
 /*
- * Read a fully parsed command.
+ * Parse am input line, build pipeline and launch jobs.
  */
-command_t *read_command();
-
-/*
- * Delete allocated command struct.
- */
-void delete_command(command_t *command);
+void try_pipeline(const char *line);
 
 #endif /* ifndef FARST_INPUT_H */

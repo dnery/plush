@@ -4,19 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-size_t tokenize(const char *line, char **argv[])
+int is_null(const char *line)
 {
-        char *str;      /* Token string pointer */
-        size_t i = 0;   /* Argument list iterator */
+        char *i = (char *)line;
+        for (; *i != '\0'; i++)
+                if (*i != ' ')
+                        return 0;
 
-        str = (char *)line;
-
-        /* Parse according to CMD_DELIM */
-        (*argv)[i++] = strtok(str, CMD_DELIM);
-        while ((i < CMD_MAXARGV) && ((*argv)[i++] = strtok(NULL, CMD_DELIM)));
-
-        /* Return string copy */
-        return --i;
+        return 1;
 }
 
 char *read_line(FILE *stream)
@@ -49,49 +44,51 @@ char *read_line(FILE *stream)
         return realloc(str, sizeof(*str) * len);
 }
 
-command_t *read_command()
+void try_pipeline(const char *line)
 {
-        char *line;             /* Input line */
-        char **argv;            /* Argument vector */
-        size_t argc;            /* Argument vector size */
-        size_t i = 0;           /* Argument vector iterator */
-        command_t *command;     /* Allocated command */
+        job_t *job;             /* Job iterator */
+        char *ctok, *ccon;      /* Command token, command context */
 
-prompt:
-        fprintf(stdout, ">>> ");
+        /* Copy string to safe memory area */
+        char *str = malloc(strlen(line) + 1);
+        strcpy(str, line);
 
-        /* Read input, silly */
-        if (strcmp((line = read_line(stdin)), "") == 0) {
-                free(line);
-                goto prompt;
+        /**/
+        ctok = strtok_r(str, CMD_BG, &ccon);
+        while (ctok != NULL) {
+
+                char *ptok, *pcon; /* Process token, process context*/
+
+                job = create_job(shell_pgid);
+                job->command = malloc(strlen(ctok) + 1);
+                strcpy(job->command, ctok);
+
+                /**/
+                ptok = strtok_r(ctok, CMD_PIPE, &pcon);
+                while (ptok != NULL) {
+
+                        char *argv[CMD_MAXARGV], *acon; /* Argument vector, argument context */
+
+                        /**/
+                        int i = 0;
+                        argv[i++] = strtok_r(ptok, CMD_DELIM, &acon);
+                        while ((i < CMD_MAXARGV) && (argv[i++] = strtok_r(NULL, CMD_DELIM, &acon)));
+                        create_process(job, argv);
+
+                        ptok = strtok_r(NULL, CMD_PIPE, &pcon);
+                }
+                ctok = strtok_r(NULL, CMD_BG, &ccon);
         }
 
-        /* Secure memory region */
-        argv = malloc(sizeof(*argv) * CMD_MAXARGV);
+        /* Launch all created jobs */
+        job = first_job;
+        for (; job != NULL; job = job->next)
+                if (job->next != NULL)
+                        sh_launch_job(job, 0);
+                else
+                        sh_launch_job(job, 1);
+        job_do_notify();
 
-        /* Get everything else */
-        argc = tokenize(line, &argv);
-        command = malloc(sizeof(*command));
-
-        command->fg = 1;
-        command->argc = argc;
-        command->argv = argv;
-        command->_line = line;
-
-        /* Silly commands are silly */
-        if (strcmp(argv[0], "exit") == 0) {
-                delete_command(command);
-                return NULL;
-        }
-
-        /* TODO FG/BG */
-
-        return command;
-}
-
-void delete_command(command_t *command)
-{
-        free(command->_line);
-        free(command->argv);
-        free(command);
+        /* Free safe memory area */
+        free(str);
 }

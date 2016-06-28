@@ -2,22 +2,39 @@
 #include "input.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
 
 int main(int argc, char *argv[])
 {
-        command_t *cmd;
+        char *input = NULL;
+        process_t *p;
+        job_t *j;
 
         sh_init();
 
-        while ((cmd = read_command()) != NULL) {
+        while (1) {
+                fprintf(stdout, ">>> ");
 
-                job_t *job = create_job(shell_pgid);
-                create_process(job, cmd->argv);
-                sh_launch_job(job, cmd->fg);
+                if (!is_null(input = read_line(stdin))) {
 
-                job_do_notify();
-                delete_command(cmd);
+                        if (strcmp(input, "exit") == 0)
+                                break;
+
+                        try_pipeline(input);
+                        free(input);
+                }
         }
 
+        for (j = first_job; j != NULL; j = j->next) {
+
+                for (p = j->first_process; p != NULL; p = p->next)
+                        kill(p->pid, SIGHUP);
+
+                kill(-j->pgid, SIGHUP);
+        }
+
+        free(input);
         return 0;
 }
