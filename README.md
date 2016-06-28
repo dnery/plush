@@ -1,5 +1,5 @@
-# Farst
-An attempt at a job control shell in C.
+# SHue
+A dream coming true with a job control shell in C.
 
 ## Progress
 Job control is fully implemented. Functionality is still limited to a simple
