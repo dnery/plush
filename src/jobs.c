@@ -169,8 +169,6 @@ int process_update_status(pid_t pid, int status)
         }
 }
 
-/* ========================================================================== */
-
 void job_update_status()
 {
         int status;     /* Status retrieved from waitpid */

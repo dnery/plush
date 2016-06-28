@@ -1,20 +1,23 @@
 #include "shell.h"
+#include "input.h"
 
 #include <stdio.h>
 
 int main(int argc, char *argv[])
 {
-        job_t *job;
-        char **pargv;
+        command_t *cmd;
 
         sh_init();
 
-        pargv = &(argv[1]);
+        while ((cmd = read_command()) != NULL) {
 
-        job = create_job(shell_pgid);
-        create_process(job, pargv);
-        sh_launch_job(job, 1);
-        job_do_notify();
+                job_t *job = create_job(shell_pgid);
+                create_process(job, cmd->argv);
+                sh_launch_job(job, cmd->fg);
+
+                job_do_notify();
+                delete_command(cmd);
+        }
 
         return 0;
 }

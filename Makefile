@@ -1,11 +1,12 @@
 # Automated flags
 CC = gcc
-CFLAGS = --ansi -D_POSIX_C_SOURCE=20011L -Werror --pedantic-errors -O0 -g
+#CFLAGS = --ansi -D_POSIX_C_SOURCE=20011L -Werror --pedantic-errors -O0 -g
+CFLAGS = --ansi -D_POSIX_C_SOURCE=20011L -Werror --pedantic-errors -O0 -g -ftrapv -fsanitize=address
 
 # Local variables
 SRCDIR = ./src/
 BINDIR = ./build/
-OBJ = jobs.o shell.o main.o
+OBJ = jobs.o input.o shell.o main.o
 
 # Path-resolved objects
 RESOBJ = $(addprefix $(BINDIR), $(OBJ))

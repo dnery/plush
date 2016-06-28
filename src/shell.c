@@ -24,7 +24,14 @@ void sh_init()
                 signal(SIGTSTP, SIG_IGN);
                 signal(SIGTTIN, SIG_IGN);
                 signal(SIGTTOU, SIG_IGN);
-                /* signal(SIGCHLD, SIG_IGN); */
+
+                /* signal(SIGCHLD, SIG_IGN);
+                 *
+                 * Ignoring SIGCHLD (or not implementing a handler) _will_
+                 * cause waitpid to immediately return -1, thus, in our case,
+                 * completely ruining job polling in job_do_notify(), since it
+                 * depends on a valid pid returned.
+                 */
 
                 /* INSERT SELF INTO GROUP */
                 shell_pgid = getpid();
@@ -69,11 +76,13 @@ void sh_launch_job(job_t *job, int foreground)
 
                         if (shell_interactive) {
 
-                                /* MAN SPECIFIES: If pgid is 0, pid of indicated process shall be used */
-                                /* if (job->pgid == 0)
-                                        job->pgid = pid; */
-                                fprintf(stdout, "Setting %d to %d\n", (int)pid, (int)job->pgid);
-
+                                /*
+                                 * if (job->pgid == 0)
+                                 *      job->pgid = pid;
+                                 *
+                                 * MAN specifies that if pgid is 0, pid of
+                                 * indicated process (pid) shall be used.
+                                 */
                                 setpgid(pid, job->pgid);
                         }
                 }
@@ -106,10 +115,13 @@ void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
         if (shell_interactive) {
                 pid = getpid();
 
-                /* MAN SPECIFIES: If pgid is 0, pid of indicated process shall be used */
-                /* if (pgid == 0)
-                        pgid = pid; */
-
+                /*
+                 * if (pgid == 0)
+                 *      pgid = pid;
+                 *
+                 * MAN specifies that if pgid is 0, pid of
+                 * indicated process (pid) shall be used.
+                 */
                 setpgid(pid, pgid);
 
                 if (foreground)
