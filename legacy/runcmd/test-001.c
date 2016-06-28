@@ -16,9 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-   */
-
-
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,10 +27,8 @@
 
 #include "runcmd.h"
 #include "debug.h"
-
 #include "t.h"
 #include "testutils.h"
-
 
 /* This program performs a series of tests and return the number of errors.*/
 
@@ -70,7 +66,6 @@ int main (int argc, char **argv)
 
         /* Check */
 
-
         pid = try_runcmd (cmd1, &result, NULL);   /* Normal, success. */
         /* printf ("  Checking...\n"); */
 
@@ -92,7 +87,6 @@ int main (int argc, char **argv)
         nerrors += check ("exec success if correctly reported",
                         (IS_NORMTERM(result)) &&
                         (IS_EXECOK(result)));
-
 
         fclose (fp);
         unlink ("t1.log");
