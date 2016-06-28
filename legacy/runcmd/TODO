@@ -2,17 +2,17 @@
 ToDo List
 -----------------------------------------------
 
-* add Makefile tendist
+* add Makefile gendist
 
 * change config.mk for project.cfg and gendist it using patch?
 
 * See the 'local' dir issue (do we need it?)
 
-*.o : gendist? or clean ?
+*.o : gendist? or clean?
 
-* Move gendist from main to .o rules 
+* Move gendist from main to .o rules
 
-Opportunelly:
+Opportunely:
 
 * Check POSIX compliance
 
@@ -21,11 +21,10 @@ Opportunelly:
 * Should we use $? in ar
 
 
-
 Done
 -------------------------------------------------
 
-Most recent bellow.
+Most recent below.
 
 * runcmd (const char* ...)
 
@@ -42,10 +41,3 @@ Most recent bellow.
 * handle rpath (executable scritp)
 
 * make dist : $(PROJECT).tgz ?
-
-
-
-
-
-
-

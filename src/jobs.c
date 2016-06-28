@@ -3,22 +3,81 @@
 
 #include <sys/wait.h>
 
-int create_process(job_t *job, char *argv[])
+process_t *create_process(job_t *job, char **argv)
 {
-        return 0;
+        process_t *p = NULL; /* Allocated process */
+        process_t *k = NULL; /* Process iterator */
+
+        /* Allocate p and zer0 it out */
+        if ((p = malloc(sizeof *p)) == NULL)
+                return NULL;
+
+        p->suspended = 0;
+        p->completed = 0;
+        p->status = -1;
+        p->argv = argv;
+        p->next = NULL;
+        p->pid = -1;
+
+        /* insert p at the end of process queue */
+        if ((k = job->first_process) != NULL) {
+                for (; k->next != NULL; k = k->next);
+                k->next = p;
+        } else {
+                job->first_process = p;
+        }
+
+        /* return successfully */
+        return p;
 }
 
 void delete_process(process_t *process)
 {
+        free(process);
 }
 
-int create_job(job_t **job)
+job_t *create_job(pid_t pgid)
 {
-        return 0;
+        job_t *j; /* Allocated job */
+        job_t *k; /* Job iterator */
+
+        /* Allocate j and zer0 it out */
+        if((j = malloc(sizeof(job_t))) == NULL)
+                return NULL;
+
+        j->pgid = getpid();
+        setpgid(j->pgid, pgid);
+
+        j->stdin = STDIN_FILENO;
+        j->stdout = STDOUT_FILENO;
+        j->stderr = STDERR_FILENO;
+
+        j->command = NULL;
+        j->first_process = NULL;
+        j->notified = 0;
+        j->next = NULL;
+
+        /* insert j at the end of the job queue */
+        if ((k = first_job) != NULL) {
+                for (; k->next != NULL; k = k->next);
+                k->next = j;
+        } else {
+                first_job = j;
+        }
+        /* return successfully */
+        return j;
 }
 
 void delete_job(job_t *job)
 {
+        process_t *p = job->first_process;
+        while (p != NULL) {
+                process_t *n = p->next;
+                delete_process(p);
+                p = n;
+        }
+
+        free(job);
 }
 
 job_t *find_job(pid_t pgid)
@@ -118,7 +177,7 @@ void job_update_status()
         pid_t pid;      /* PID retrieved from waitpid */
 
         do {
-                pid = waitpid(-1, &status, WUNTRACED|WNOHANG);
+                pid = waitpid(0, &status, WUNTRACED|WNOHANG);
         } while (!process_update_status(pid, status));
 }
 
@@ -128,7 +187,7 @@ void job_wait_blocked(job_t *job)
         pid_t pid;      /* PID retrieved from waitpid */
 
         do {
-                pid = waitpid(-1, &status, WUNTRACED);
+                pid = waitpid(0, &status, WUNTRACED);
         } while (!process_update_status(pid, status)
                         && !is_suspended(job)
                         && !is_completed(job));

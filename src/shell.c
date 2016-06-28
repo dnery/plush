@@ -24,7 +24,7 @@ void sh_init()
                 signal(SIGTSTP, SIG_IGN);
                 signal(SIGTTIN, SIG_IGN);
                 signal(SIGTTOU, SIG_IGN);
-                signal(SIGCHLD, SIG_IGN);
+                /* signal(SIGCHLD, SIG_IGN); */
 
                 /* INSERT SELF INTO GROUP */
                 shell_pgid = getpid();
@@ -35,8 +35,6 @@ void sh_init()
 
                 /* Save attributes */
                 tcgetattr(shell_terminal, &shell_modes);
-
-                info(":3\n");
         }
 }
 
@@ -72,8 +70,9 @@ void sh_launch_job(job_t *job, int foreground)
                         if (shell_interactive) {
 
                                 /* MAN SPECIFIES: If pgid is 0, pid of indicated process shall be used */
-                                if (job->pgid == 0)
-                                        job->pgid = pid;
+                                /* if (job->pgid == 0)
+                                        job->pgid = pid; */
+                                fprintf(stdout, "Setting %d to %d\n", (int)pid, (int)job->pgid);
 
                                 setpgid(pid, job->pgid);
                         }
@@ -94,9 +93,9 @@ void sh_launch_job(job_t *job, int foreground)
         if (!shell_interactive)
                 job_wait_blocked(job);
         else if (foreground)
-                put_in_foreground(job, 0);
+              put_in_foreground(job, 0);
         else
-                put_in_background(job, 0);
+              put_in_background(job, 0);
 }
 
 void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
@@ -108,8 +107,8 @@ void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
                 pid = getpid();
 
                 /* MAN SPECIFIES: If pgid is 0, pid of indicated process shall be used */
-                if (pgid == 0)
-                        pgid = pid;
+                /* if (pgid == 0)
+                        pgid = pid; */
 
                 setpgid(pid, pgid);
 
@@ -122,13 +121,13 @@ void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
                 signal(SIGTSTP, SIG_DFL);
                 signal(SIGTTIN, SIG_DFL);
                 signal(SIGTTOU, SIG_DFL);
-                signal(SIGCHLD, SIG_DFL);
+                /* signal(SIGCHLD, SIG_DFL); */
         }
 
         /*
          * Set stdanard IO channels for new process.
          *
-         * TODO Redirection has to happen here.
+         * TODO Redirection should to happen here.
          */
         if (in != STDIN_FILENO) {
                 dup2(in, STDIN_FILENO);
@@ -171,7 +170,7 @@ void put_in_foreground(job_t *job, int cont)
         /* Put jab in foreground */
         tcsetpgrp(shell_terminal, job->pgid);
 
-        /* Continue work, if specified */
+        /* Send job a continue signal, if cont is true */
         if (cont) {
                 tcsetattr(shell_terminal, TCSADRAIN, &job->modes);
                 check(kill(-job->pgid, SIGCONT) >= 0);
@@ -190,7 +189,7 @@ void put_in_foreground(job_t *job, int cont)
 
 void put_in_background(job_t *job, int cont)
 {
-        /* Just continue work, if so specified */
+        /* Send job a continue signal, if cont is true */
         if (cont)
                 check(kill(-job->pgid, SIGCONT) >= 0);
 }

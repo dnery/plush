@@ -42,7 +42,7 @@ job_t *first_job;
 /*
  * TODO Allocate a process and insert it into the pipeline.
  */
-int create_process(job_t *job, char *argv[]);
+process_t *create_process(job_t *job, char *argv[]);
 
 /*
  * TODO Delete process from the pipeline.
@@ -52,7 +52,7 @@ void delete_process(process_t *process);
 /*
  * TODO Allocate a job and insert it into the job array.
  */
-int create_job(job_t **job);
+job_t *create_job(pid_t pgid);
 
 /*
  * TODO Delete job from the job array.
@@ -71,7 +71,7 @@ void delete_job(job_t *job);
 /* == MOSTLY INTERNAL LINKAGE =============================================== */
 
 /*
- * Find job element with certain pgid element.
+ * Find job element with certain process group ID.
  */
 job_t *find_job(pid_t pgid);
 
