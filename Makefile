@@ -5,22 +5,27 @@ CFLAGS = --ansi -D_POSIX_C_SOURCE=20011L -Werror --pedantic-errors -O0 -g -ftrap
 
 # Local variables
 SRCDIR = ./src/
-BINDIR = ./build/
+BINDIR = ./bin/
 OBJ = jobs.o input.o shell.o main.o
 
 # Path-resolved objects
 RESOBJ = $(addprefix $(BINDIR), $(OBJ))
 
-all: $(RESOBJ)
-	$(CC) $(CFLAGS) -o farst $(RESOBJ)
+all: $(BINDIR) $(RESOBJ)
+	$(CC) $(CFLAGS) -o plush $(RESOBJ)
 
+#1. Build path is constructed
+$(BINDIR):
+	mkdir -p $(BINDIR)
+
+#2. Objects are put into build path
 $(RESOBJ): $(BINDIR)%.o: $(SRCDIR)%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: run clean
 
 run:
-	./farst
+	./plush
 
 clean:
-	rm -f farst $(RESOBJ)
+	rm -f plush $(RESOBJ)

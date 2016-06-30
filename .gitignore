@@ -31,10 +31,7 @@
 # Debug files
 *.dSYM/
 
+# Local branch
+bin/
+plush
 *.swp
-shue
-tags
-
-# Fasd branch
-build/
-farst
