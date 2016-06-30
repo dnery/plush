@@ -14,11 +14,11 @@ void sh_init()
         shell_interactive = isatty(shell_terminal);
 
         if (shell_interactive) {
-                /* ACTIVE BLOCK UNTIL WE ARE FOREGROUND */
+                /* Busy wait until we are foreground */
                 while (tcgetpgrp(shell_terminal) != (shell_pgid = getpgrp()))
                         kill(-shell_pgid, SIGTTIN);
 
-                /* IGNORE PERTINENT SIGNALS */
+                /* Ignore some control signals */
                 signal(SIGINT, SIG_IGN);
                 signal(SIGQUIT, SIG_IGN);
                 signal(SIGTSTP, SIG_IGN);
@@ -34,7 +34,7 @@ void sh_init()
                  * depends on a valid pid returned.
                  */
 
-                /* INSERT SELF INTO GROUP */
+                /* Insert self into group */
                 shell_pgid = getpid();
                 check(setpgid(shell_pgid, shell_pgid) >=0);
 
@@ -108,10 +108,14 @@ void sh_launch_job(job_t *job, int foreground)
               put_in_background(job, 0);
 }
 
-void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
+void sh_launch_process(process_t *p,
+                pid_t pgid,
+                int infile,
+                int outfile,
+                int errfile,
                 int foreground)
 {
-        pid_t pid;
+        pid_t pid;      /* Process ID container for new process */
 
         if (shell_interactive) {
                 pid = getpid();
@@ -137,27 +141,21 @@ void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
                 /* signal(SIGCHLD, SIG_DFL); */
         }
 
-        /*
-         * Set stdanard IO channels for new process.
-         *
-         * TODO Redirection should to happen here.
-         */
-        if (in != STDIN_FILENO) {
-                dup2(in, STDIN_FILENO);
-                close(in);
+        /* Set stdanard IO channels for new process */
+        if (infile != STDIN_FILENO) {
+                dup2(infile, STDIN_FILENO);
+                close(infile);
         }
-        if (out != STDOUT_FILENO) {
-                dup2(out, STDOUT_FILENO);
-                close(out);
+        if (outfile != STDOUT_FILENO) {
+                dup2(outfile, STDOUT_FILENO);
+                close(outfile);
         }
-        if (err != STDERR_FILENO) {
-                dup2(err, STDERR_FILENO);
-                close(err);
+        if (errfile != STDERR_FILENO) {
+                dup2(errfile, STDERR_FILENO);
+                close(errfile);
         }
 
-        /*
-         * Exec and exit on error.
-         */
+        /* Exec program, exit on error. */
         execvp(p->argv[0], p->argv);
         warn("End-point execvp.\n");
         exit(errno);

@@ -29,7 +29,11 @@ void sh_launch_job(job_t *job, int foreground);
  *
  *     -> http://bit.ly/28OupvE
  */
-void sh_launch_process(process_t *p, pid_t pgid, int in, int out, int err,
+void sh_launch_process(process_t *p,
+                pid_t pgid,
+                int infile,
+                int outfile,
+                int errfile,
                 int foreground);
 
 /*
